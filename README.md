@@ -12,7 +12,7 @@ The following sections walk through how to configure the spark-emulator to run i
 
 Because this project uses git submodules you may need to manually update them to get the spark-emulator and sparkbotstarter projects populated, depending on the version of git you are running.  If these directories are empty, from the root directory of this project run the command:
 
-    ```git submodule update --init --recursive```
+    git submodule update --init --recursive
 
 ## Configuring the emulator to run in "bot test mode".
 This project includes a link to the https://github.com/ciscospark/spark-emulator project.   It is already configured to run in test mode for the bot in this sample, but this was done by doing the following:
