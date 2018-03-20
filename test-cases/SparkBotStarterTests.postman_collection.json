@@ -12,11 +12,11 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d2a0c1a2-b6b9-4695-bdc9-089b02d184d2",
+						"id": "af8c3d0b-d8ba-4eb2-815d-97e0d5796adc",
 						"type": "text/javascript",
 						"exec": [
-							"",
 							"// Save common tests in a global variable",
+							"// Check if the initial test request returned the expected value",
 							"postman.setGlobalVariable(\"commonTests\", (task, status) => {",
 							"  // We expect a 200 OK",
 							"  tests[task + \" returned \" + status] = responseCode.code === status;",
@@ -24,6 +24,8 @@
 							"  tests[\"Content-Type header is set\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json; charset=utf-8\";",
 							"});",
 							"",
+							"// When X-Bot-Responses header is set, check to see if we got an expected",
+							"// consolidated response body",
 							"postman.setGlobalVariable(\"bodyIncludesBotResponsesTest\", () => {",
 							"  // The response body includes both the response plus the expected bot requests",
 							"  var data = JSON.parse(responseBody);",
@@ -52,7 +54,7 @@
 							"});",
 							"",
 							"",
-							"// Run the common tests",
+							"// Run the common tests for the create room request",
 							"eval(globals.commonTests)(\"Create room\", 200);",
 							"",
 							"// We don't expect any responses from the bot for this call",
@@ -67,8 +69,6 @@
 							"    postman.setEnvironmentVariable(\"_room\", roomID);",
 							"    tests[\"Create a room: created with id:\" + roomID] = true",
 							"}",
-							"",
-							"// No bot responses to this one",
 							"",
 							""
 						]
@@ -115,12 +115,12 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "1fd8eb61-0039-4dcc-a8bc-130bc5c5a427",
+						"id": "1ae78f95-f9c8-4e56-ab1f-349395f24d1c",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
 							"eval(globals.commonTests)(\"Add Bot to room\", 200);",
-							""
+							"// No bot responses expected so we are done"
 						]
 					}
 				}
@@ -220,15 +220,17 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c969f3ad-eb9d-474b-86ad-8628ebebe5b0",
+						"id": "25a31ead-417a-48de-864e-2be6077cbe2a",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
-							"/* eslint no-eval: 0 */",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
 							"// Check that we got the combined spark API and bot response payload",
 							"eval(globals.bodyIncludesBotResponsesTest)()",
+							"",
+							"// Check if we got the expected message from the bot",
+							"",
 							"var jsonData = JSON.parse(responseBody);",
 							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
 							"var botResponses = jsonData.botResponses;",
@@ -238,7 +240,6 @@
 							"if (botResponses.length == expectedResponses) {",
 							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
 							"    var botResponse = jsonData.botResponses[0]",
-							"    // Check if we got the expected message from the bot",
 							"    var testerName = postman.getEnvironmentVariable(\"tester_name\");",
 							"    var resultMsg = testerName + ', you said hello to me!';",
 							"    eval(globals.botResponseMessageText)(botResponse, roomId, resultMsg);",
@@ -292,11 +293,10 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "114b3cb9-39b5-4415-a72a-4a83636486e1",
+						"id": "27165e43-76ac-4208-b5c6-ca6cbc735270",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
-							"/* eslint no-eval: 0 */",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
 							"// Check that we got the combined spark API and bot response payload",
@@ -305,18 +305,19 @@
 							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
 							"var botResponses = jsonData.botResponses;",
 							"",
+							"// Check that we got the expected bot responses",
 							"var roomId = postman.getEnvironmentVariable(\"_room\");",
 							"var expectedResponses = request.headers['x-bot-responses'];",
 							"if (botResponses.length == expectedResponses) {",
 							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
-							"    var botResponse = jsonData.botResponses[0]",
+							"    var botResponse = jsonData.botResponses[0];",
 							"    // Check if we got the expected first message from the bot",
 							"    var testerName = postman.getEnvironmentVariable(\"tester_name\");",
 							"    var resultMsg = testerName + ' here is some of your information: \\n\\n\\n **Room:** you are in \\\"**Bot-Tester-Room**\\\" \\n\\n\\n **Room id:** *' + roomId + '*';",
 							"    eval(globals.botResponseMessageMarkdown)(botResponse, roomId, resultMsg);",
 							"    ",
 							"    // Check if we got the expected seconde message from the bot",
-							"    var botResponse = jsonData.botResponses[1]",
+							"    botResponse = jsonData.botResponses[1];",
 							"    var testerEmail = postman.getEnvironmentVariable(\"tester_email\");",
 							"    resultMsg = ' **Email:** your email on file is *' + testerEmail + '*';",
 							"    eval(globals.botResponseMessageMarkdown)(botResponse, roomId, resultMsg);",
@@ -370,15 +371,16 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c268f81e-9a38-4ab3-87ba-a85ffa5e25b0",
+						"id": "4ccf8c49-a971-44a8-8369-1c707437485b",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
-							"/* eslint no-eval: 0 */",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
 							"// Check that we got the combined spark API and bot response payload",
 							"eval(globals.bodyIncludesBotResponsesTest)()",
+							"",
+							"// Check that we got the expected bot response",
 							"var jsonData = JSON.parse(responseBody);",
 							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
 							"var botResponses = jsonData.botResponses;",
@@ -440,11 +442,10 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "80360080-63f0-4e63-8059-e22018b2de6e",
+						"id": "18bfa9af-4e54-4810-b3c2-0202f12039c1",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
-							"/* eslint no-eval: 0 */",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
 							"// Check that we got the combined spark API and bot response payload",
@@ -453,15 +454,17 @@
 							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
 							"var botResponses = jsonData.botResponses;",
 							"",
+							"",
+							"// Check that we got the expected bot responses",
 							"var roomId = postman.getEnvironmentVariable(\"_room\");",
 							"var expectedResponses = request.headers['x-bot-responses'];",
 							"if (botResponses.length == expectedResponses) {",
 							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
-							"    var botResponse = jsonData.botResponses[0]",
+							"    var botResponse = jsonData.botResponses[0];",
 							"    // Check if we got the expected message from the bot",
 							"    eval(globals.botResponseMessageTest)(botResponse, roomId, \"OK.  I know when I'm not wanted...\");",
 							"        // Check if the bot left the space",
-							"    var botResponse = jsonData.botResponses[1]",
+							"    botResponse = jsonData.botResponses[1];",
 							"    tests[\"Bot deleted a membership\"] = botResponse.method === 'DELETE';",
 							"} else {",
 							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = false;",
@@ -513,13 +516,13 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d64cffaa-4d51-4d38-95ba-879b302c4eac",
+						"id": "f01919fd-d05d-44bd-962b-a5ae82f6b38d",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
 							"eval(globals.commonTests)(\"List the memberships for the room\", 200);",
 							"",
-							"// Assuming all went well confirm the expected two memeberships",
+							"// Assuming all went well confirm the expected one memebership",
 							"var jsonData = JSON.parse(responseBody);",
 							"if (jsonData.items === undefined) {",
 							"    tests[\"Memberships: cannot retreive membership info\"] = false",
@@ -572,6 +575,7 @@
 				{
 					"listen": "test",
 					"script": {
+						"id": "52416ba1-bb5f-4969-932a-2d0461b2a2a1",
 						"type": "text/javascript",
 						"exec": [
 							"if (responseCode.code != 204) {",

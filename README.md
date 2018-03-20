@@ -10,6 +10,10 @@ In general the testing works as follows:
 
 The following sections walk through how to configure the spark-emulator to run in "bot test mode", how to modify a bot in order to make it "testable", and finally how to write and run tests that emulate spark user actions to ensure that the bot responds as expected.
 
+Because this project uses git submodules you may need to manually update them to get the spark-emulator and sparkbotstarter projects populated, depending on the version of git you are running.  If these directories are empty, from the root directory of this project run the command:
+
+    ```git submodule update --init --recursive```
+
 ## Configuring the emulator to run in "bot test mode".
 This project includes a link to the https://github.com/ciscospark/spark-emulator project.   It is already configured to run in test mode for the bot in this sample, but this was done by doing the following:
 
@@ -100,7 +104,7 @@ After ensuring that your bot is configured as described above, make sure that th
 
 2) As described above, we also need to modify the bot framework to work with the emulator.  Since the framework is not part of this sample package **you must perform this step** after downloading the dependencies.  **This is the one step you must perform in order to run the tests with the sample**
 
-     Modify spark.js in the node_modules/node-sparky/lib directory by changing this line:
+     Modify sparkbotstarter/node_modules/node-sparky/lib/spark.js directory by changing this line:
 
     ```
      // api url
