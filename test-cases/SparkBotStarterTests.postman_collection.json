@@ -1,0 +1,640 @@
+{
+	"info": {
+		"name": "SparkBotStarter Tests",
+		"_postman_id": "b37bf1b9-ab91-3f45-bfcc-1c2c5f818095",
+		"description": "This is a set of test input designed to test and validate the expected behavior of the SparkBotStarter which is included as part of the bot-test-framework-example (https://github.com/jpjpjp/bot-test-framework-example).   These tests can be run when the Cisco Spark Emulator and the SparkBotStart bot are running as described in the readme of that project.\n\nThe following environment variables must be set prior to running the tests\nAPI_URL -- the url where the spark emulator is running, ie http://localhost:3210\nSPARK_TOKEN -- a token specified in tokens.json for the spark emulator\nbot_email -- the email ID of the bot that will be tested.   Specified in tokens.json\nbot_id -- the id of the bot being tested.  Specified in tokens.json\ntester_name -- the name of the user running the tests.  Specified in tokens.json\ntester_email -- the email of the user running the tests.  Specified in tokens.json\n\nEach test emulates some type of user input to Cisco Spark.   It is sent to the emulator endpoint specified in the API_URL environment variable.\n\nWhen we expect the SparkBotStarter to respond with some request(s), we specify the X-Bot-Responses header to the number of requests we expect the bot to send.   The Spark Emulator will intercept the \"normal\" responses to our test cases and collect the bot responses, adding them to our response before sending the response back to Postman.\n\nEach Test case can then examine the responses for both the expected response to our initial test request and for the expected bot responses that would follow it.\n\nNote that the first request in the collection includes some globally defined tests that are evaluated in subsequent tests so the tests must be run in order.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create a group room (and define global test cases)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d2a0c1a2-b6b9-4695-bdc9-089b02d184d2",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"// Save common tests in a global variable",
+							"postman.setGlobalVariable(\"commonTests\", (task, status) => {",
+							"  // We expect a 200 OK",
+							"  tests[task + \" returned \" + status] = responseCode.code === status;",
+							"  // The Content-Type must be JSON",
+							"  tests[\"Content-Type header is set\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json; charset=utf-8\";",
+							"});",
+							"",
+							"postman.setGlobalVariable(\"bodyIncludesBotResponsesTest\", () => {",
+							"  // The response body includes both the response plus the expected bot requests",
+							"  var data = JSON.parse(responseBody);",
+							"  var expectedResponses = request.headers['x-bot-responses'];",
+							"  tests[\"X-Bot-Responses request header was set to:\" + expectedResponses] = expectedResponses !== undefined;",
+							"  tests[\"Response body has a TestFrameworkResponse object\"] = data.testFrameworkResponse !== undefined;",
+							"  tests[\"Response body has the botResponses array\"] = data.botResponses !== undefined;",
+							"});",
+							"",
+							"// Check if the bot sent us an expected message in text format",
+							"postman.setGlobalVariable(\"botResponseMessageText\", (botResponse, roomId, message) => {",
+							"    tests[\"Bot called the /messages API\"] = botResponse.route === '/messages';",
+							"    console.log(roomId);",
+							"    console.log(botResponse.body.roomId);",
+							"    tests[\"Bot message was sent to room ID: \"+roomId] = botResponse.body.roomId === roomId;",
+							"    tests[\"Bot sent expected text: \"+message] = botResponse.body.text === message;",
+							"});",
+							"",
+							"// Check if the bot sent us an expected message in markdown format",
+							"postman.setGlobalVariable(\"botResponseMessageMarkdown\", (botResponse, roomId, message) => {",
+							"    tests[\"Bot called the /messages API\"] = botResponse.route === '/messages';",
+							"    console.log(roomId);",
+							"    console.log(botResponse.body.roomId);",
+							"    tests[\"Bot message was sent to room ID: \"+roomId] = botResponse.body.roomId === roomId;",
+							"    tests[\"Bot sent expected markdown: \"+message] = botResponse.body.markdown === message;",
+							"});",
+							"",
+							"",
+							"// Run the common tests",
+							"eval(globals.commonTests)(\"Create room\", 200);",
+							"",
+							"// We don't expect any responses from the bot for this call",
+							"",
+							"// Assuming all went well get the room id  ",
+							"var jsonData = JSON.parse(responseBody);",
+							"if (jsonData.id === undefined) {",
+							"    tests[\"Create a room: cannot retreive room identifier\"] = false",
+							"}",
+							"else {",
+							"    var roomID = jsonData.id;",
+							"    postman.setEnvironmentVariable(\"_room\", roomID);",
+							"    tests[\"Create a room: created with id:\" + roomID] = true",
+							"}",
+							"",
+							"// No bot responses to this one",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "",
+						"value": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Bot-Tester-Room\"\n}"
+				},
+				"url": {
+					"raw": "{{API_URL}}/rooms",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"rooms"
+					]
+				},
+				"description": "Creates a room. The authenticated user is automatically added as a member of the room. \n\nThe bot is not in the room at this point so we don not expect any bot responses.\n\nOn the test tab we define some global tests methods that will be used in subseqent test cases.\n\nIn addition we capture the roomId of the created room and store it in the _roomId environment variable for us in subseqent requests."
+			},
+			"response": []
+		},
+		{
+			"name": "Add bot to group room",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1fd8eb61-0039-4dcc-a8bc-130bc5c5a427",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"eval(globals.commonTests)(\"Add Bot to room\", 200);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"roomId\": \"{{_room}}\",\r\n\t\"personId\": \"{{bot_id}}\",\r\n    \"isModerator\": false\r\n}"
+				},
+				"url": {
+					"raw": "{{API_URL}}/memberships",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"memberships"
+					]
+				},
+				"description": "Adds the bot to the previously created room.   Note that the bot is added via the personId element in the body.  The cisco spark emulator does not fully support referring to users via email yet.\n\nThe bot's person id should be specified in the bot_id environment variable.\n\nNo bot response is expected to this test."
+			},
+			"response": []
+		},
+		{
+			"name": "List memberships (2)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "90062892-27d4-4dec-a0a9-ef23eb72bd5c",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"eval(globals.commonTests)(\"List the memberships for the room\", 200);",
+							"",
+							"// Assuming all went well confirm the expected two memeberships",
+							"var jsonData = JSON.parse(responseBody);",
+							"if (jsonData.items === undefined) {",
+							"    tests[\"Memberships: cannot retreive membership info\"] = false",
+							"}",
+							"else {",
+							"    var count = jsonData.items.length;",
+							"    if (count != 2) {",
+							"        var testStr = \"Membership Count: Exepected 2 memberships, got %d\", count;",
+							"        tests[testStr] = false",
+							"    } else {",
+							"        tests[\"Membership Count: Got the exepected 2 memberships\"] = true;",
+							"    }",
+							"}",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{API_URL}}/memberships?roomId={{_room}}",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"memberships"
+					],
+					"query": [
+						{
+							"key": "roomId",
+							"value": "{{_room}}",
+							"equals": true
+						}
+					]
+				},
+				"description": "Lists memberships for the room.   Validate that there are two users in the room,  the testing user (Mr. Postman) and the bot (Bot).\n\nNo bot responses are expected after making this request.\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Send /hello message to space",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c969f3ad-eb9d-474b-86ad-8628ebebe5b0",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"/* eslint no-eval: 0 */",
+							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
+							"",
+							"// Check that we got the combined spark API and bot response payload",
+							"eval(globals.bodyIncludesBotResponsesTest)()",
+							"var jsonData = JSON.parse(responseBody);",
+							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
+							"var botResponses = jsonData.botResponses;",
+							"",
+							"var roomId = postman.getEnvironmentVariable(\"_room\");",
+							"var expectedResponses = request.headers['x-bot-responses'];",
+							"if (botResponses.length == expectedResponses) {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
+							"    var botResponse = jsonData.botResponses[0]",
+							"    // Check if we got the expected message from the bot",
+							"    var testerName = postman.getEnvironmentVariable(\"tester_name\");",
+							"    var resultMsg = testerName + ', you said hello to me!';",
+							"    eval(globals.botResponseMessageText)(botResponse, roomId, resultMsg);",
+							"} else {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = false;",
+							"}",
+							"",
+							"    ",
+							"    ",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Bot-Responses",
+						"value": "1"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /hello\"\r\n}"
+				},
+				"url": {
+					"raw": "{{API_URL}}/messages",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"messages"
+					]
+				},
+				"description": "Post a message to the space that mentions the bot and includes the command /hello\n\nThe @mention is accomplished by using the bot's id as the emulator does not yet fully handle referring to users via email or name.\n\nWe do expect the bot to send one request in response to this request so we set the X-Bot-Response header to 1.\n\nThe tests will inspect the consolidated response body to ensure that our request was handled properly and that the bot replied with the expected message, ie \"Hello Mr. Postman\"."
+			},
+			"response": []
+		},
+		{
+			"name": "Send /whoami message to the space",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "114b3cb9-39b5-4415-a72a-4a83636486e1",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"/* eslint no-eval: 0 */",
+							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
+							"",
+							"// Check that we got the combined spark API and bot response payload",
+							"eval(globals.bodyIncludesBotResponsesTest)()",
+							"var jsonData = JSON.parse(responseBody);",
+							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
+							"var botResponses = jsonData.botResponses;",
+							"",
+							"var roomId = postman.getEnvironmentVariable(\"_room\");",
+							"var expectedResponses = request.headers['x-bot-responses'];",
+							"if (botResponses.length == expectedResponses) {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
+							"    var botResponse = jsonData.botResponses[0]",
+							"    // Check if we got the expected first message from the bot",
+							"    var testerName = postman.getEnvironmentVariable(\"tester_name\");",
+							"    var resultMsg = testerName + ' here is some of your information: \\n\\n\\n **Room:** you are in \\\"**Bot-Tester-Room**\\\" \\n\\n\\n **Room id:** *' + roomId + '*';",
+							"    eval(globals.botResponseMessageMarkdown)(botResponse, roomId, resultMsg);",
+							"    ",
+							"    // Check if we got the expected seconde message from the bot",
+							"    var botResponse = jsonData.botResponses[1]",
+							"    var testerEmail = postman.getEnvironmentVariable(\"tester_email\");",
+							"    resultMsg = ' **Email:** your email on file is *' + testerEmail + '*';",
+							"    eval(globals.botResponseMessageMarkdown)(botResponse, roomId, resultMsg);",
+							"} else {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = false;",
+							"}",
+							"",
+							"    ",
+							"    ",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Bot-Responses",
+						"value": "2"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /whoami\"\r\n}"
+				},
+				"url": {
+					"raw": "{{API_URL}}/messages",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"messages"
+					]
+				},
+				"description": "Post a message to the space that mentions the bot and includes the command /whoami\n\nThe @mention is accomplished by using the bot's id as the emulator does not yet fully handle referring to users via email or name.\n\nWe do expect the bot to send two requests in response to this request so we set the X-Bot-Response header to 2.\n\nThe tests will inspect the consolidated response body to ensure that our request was handled properly and that the bot replied with the expected message.  In this case we expect the bot to reply with two markdown messages."
+			},
+			"response": []
+		},
+		{
+			"name": "Send /echo message to space",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c268f81e-9a38-4ab3-87ba-a85ffa5e25b0",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"/* eslint no-eval: 0 */",
+							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
+							"",
+							"// Check that we got the combined spark API and bot response payload",
+							"eval(globals.bodyIncludesBotResponsesTest)()",
+							"var jsonData = JSON.parse(responseBody);",
+							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
+							"var botResponses = jsonData.botResponses;",
+							"",
+							"var roomId = postman.getEnvironmentVariable(\"_room\");",
+							"var expectedResponses = request.headers['x-bot-responses'];",
+							"if (botResponses.length == expectedResponses) {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
+							"    var botResponse = jsonData.botResponses[0]",
+							"    // Check if we got the expected message from the bot",
+							"    eval(globals.botResponseMessageText)(botResponse, roomId, \"Ok, I'll say it: \\\"Repeat this back to me.\\\"\");",
+							"} else {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = false;",
+							"}",
+							"",
+							"    ",
+							"    ",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Bot-Responses",
+						"value": "1"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /echo Repeat this back to me.\"\r\n}"
+				},
+				"url": {
+					"raw": "{{API_URL}}/messages",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"messages"
+					]
+				},
+				"description": "Post a message to the space that mentions the bot and includes the command /echo\n\nThe @mention is accomplished by using the bot's id as the emulator does not yet fully handle referring to users via email or name.\n\nWe expect the bot to send one request in response to this request so we set the X-Bot-Response header to 1.\n\nThe tests will inspect the consolidated response body to ensure that our request was handled properly and that the bot replied with the expected message in text format."
+			},
+			"response": []
+		},
+		{
+			"name": "Send /leave message to space",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "80360080-63f0-4e63-8059-e22018b2de6e",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"/* eslint no-eval: 0 */",
+							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
+							"",
+							"// Check that we got the combined spark API and bot response payload",
+							"eval(globals.bodyIncludesBotResponsesTest)()",
+							"var jsonData = JSON.parse(responseBody);",
+							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
+							"var botResponses = jsonData.botResponses;",
+							"",
+							"var roomId = postman.getEnvironmentVariable(\"_room\");",
+							"var expectedResponses = request.headers['x-bot-responses'];",
+							"if (botResponses.length == expectedResponses) {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
+							"    var botResponse = jsonData.botResponses[0]",
+							"    // Check if we got the expected message from the bot",
+							"    eval(globals.botResponseMessageTest)(botResponse, roomId, \"OK.  I know when I'm not wanted...\");",
+							"        // Check if the bot left the space",
+							"    var botResponse = jsonData.botResponses[1]",
+							"    tests[\"Bot deleted a membership\"] = botResponse.method === 'DELETE';",
+							"} else {",
+							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = false;",
+							"}",
+							"",
+							"    ",
+							"    ",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Bot-Responses",
+						"value": "2"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /leave\"\r\n}"
+				},
+				"url": {
+					"raw": "{{API_URL}}/messages",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"messages"
+					]
+				},
+				"description": "Post a message to the space that mentions the bot and includes the command /leave\n\nThe @mention is accomplished by using the bot's id as the emulator does not yet fully handle referring to users via email or name.\n\nWe expect the bot to send two requests in response to this request so we set the X-Bot-Response header to 2.\n\nThe tests will inspect the consolidated response body to ensure that our request was handled properly and that the bot replied with a text format message and then deleted it's membership in the room."
+			},
+			"response": []
+		},
+		{
+			"name": "List memberships (1)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d64cffaa-4d51-4d38-95ba-879b302c4eac",
+						"type": "text/javascript",
+						"exec": [
+							"// First, run the common tests",
+							"eval(globals.commonTests)(\"List the memberships for the room\", 200);",
+							"",
+							"// Assuming all went well confirm the expected two memeberships",
+							"var jsonData = JSON.parse(responseBody);",
+							"if (jsonData.items === undefined) {",
+							"    tests[\"Memberships: cannot retreive membership info\"] = false",
+							"}",
+							"else {",
+							"    var count = jsonData.items.length;",
+							"    if (count != 1) {",
+							"        var testStr = \"Membership Count: Exepected 1 membership1, got %d\", count;",
+							"        tests[testStr] = false",
+							"    } else {",
+							"        tests[\"Membership Count: Got the exepected 1 membership\"] = true;",
+							"    }",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					}
+				],
+				"body": {},
+				"url": {
+					"raw": "{{API_URL}}/memberships?roomId={{_room}}",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"memberships"
+					],
+					"query": [
+						{
+							"key": "roomId",
+							"value": "{{_room}}",
+							"equals": true
+						}
+					]
+				},
+				"description": "Lists memberships in the room.\n\nWe do not expect a bot response in this case.  This is more of a classic test, where we simply confirm that the number of memberships in the room is back down to one since the bot left."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete group room",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"if (responseCode.code != 204) {",
+							"    tests[\"Delete a room: failed\"] = false",
+							"}",
+							"else {",
+							"    tests[\"Delete a room: success\"] = true",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{spark_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{API_URL}}/rooms/{{_room}}",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"rooms",
+						"{{_room}}"
+					]
+				},
+				"description": "Deletes the space that we have been working in.\r\n\r\n"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "771c1c1d-eb4d-4fb1-93b9-d90b0e61f366",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "aca1ae9b-145c-4b65-96a2-0f64fe1c1968",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

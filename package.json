@@ -1,0 +1,24 @@
+{
+  "name": "bot-test-framework-example",
+  "version": "0.1.1",
+  "description": "Package to demonstrate how to write and run tests for a Cisco Spark bot using the spark-emulator pacakage",
+  "scripts": {
+    "emulator-dependencies": "cd spark-emulator; npm install; cd ..",
+    "start-emulator": "BOT_UNDER_TEST=bot@sparkbot.io DEBUG=emulator:botTest node spark-emulator/server.js",
+    "bot-dependencies": "cd sparkbotstarter; npm install; cd ..",
+    "start-bot": "node sparkbotstarter/index.js",
+    "test": "newman run test-cases/SparkBotStarterTests.postman_collection.json -e test-cases/spark_emulator.postman_environment.json"
+  },
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ObjectIsAdvantag/spark-emulator.git"
+  },
+  "keywords": [
+    "ciscospark",
+    "emulator"
+  ],
+  "author": "JP Shipherd <jshipher@cisco.com>",
+  "license": "MIT"
+}
