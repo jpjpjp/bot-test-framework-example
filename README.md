@@ -91,9 +91,9 @@ Preparing a bot for testing requires the following steps.  These steps are alrea
 
     ```"webhookUrl": "http://localhost"```
 
-3) Configure your bot to send spark requests to the emulator instead of to the public Spark For Developers endpoint.   It is possible that your bot framework does not have a mechanism to do this today and you will need to modify your bot code, or even possibly your bot framework to do this.   In our sample we need to do both.  First the bot code this has been modified by adding the following line in [sparkbotstarter/config.json](sparkbottester/config.json):
+3) Configure your bot to send spark requests to the emulator instead of to the public Spark For Developers endpoint.   It is possible that your bot framework does not have a mechanism to do this today and you will need to modify your bot code, or even possibly your bot framework to do this.   As we are using the latest and greatest version of Flint (version 4) we can do this simply by setting the apiUrl in the config object as see in this line from [sparkbotstarter/config.json](sparkbottester/config.json):
 
-    ```"sparkApiUrl": "http://localhost:3210/"```
+    ```"apiUrl": "http://localhost:3210/"```
 
 ## Running the bot in test mode.
 After ensuring that your bot is configured as described above, make sure that the emulator is up and running.  Open a terminal window to start the bot as follows:
@@ -102,24 +102,7 @@ After ensuring that your bot is configured as described above, make sure that th
 
     ```npm run bot-dependencies```
 
-2) As described above, we also need to modify the bot framework to work with the emulator.  Since the framework is not part of this sample package **you must perform this step** after downloading the dependencies.  **This is the one step you must perform in order to run the tests with the sample**
-
-     Modify sparkbotstarter/node_modules/node-sparky/lib/spark.js directory by changing this line:
-
-    ```
-     // api url
-    this.apiUrl = 'https://api.ciscospark.com/v1/';
-    ```
-    
-    to
-
-    ```
-     /// api url
-    this.apiUrl = this.options.sparkApiUrl || 'https://api.ciscospark.com/v1/';
-    ```
-
-
-3) Start the emulator with the environment variables set as described in the previous section:
+2) Start the emulator with the environment variables set as described in the previous section:
 
     ```npm run start-emulator```
 
