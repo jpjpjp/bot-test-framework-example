@@ -1,6 +1,8 @@
 [submodule "sparkbotstarter"]
 	path = sparkbotstarter
 	url = https://github.com/jpjpjp/sparkbotstarter.git
+	branch = master
 [submodule "spark-emulator"]
 	path = spark-emulator
 	url = https://github.com/ciscospark/spark-emulator.git
+	branch = master
