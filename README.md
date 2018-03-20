@@ -5,7 +5,7 @@ To test your own bot, you do not need to run this entire project, only clone the
 
 In general the testing works as follows:
   - Bot is configured to talk to an instance of the spark emulator, rather than the actual Cisco Spark For Developers API endpoint.
-  - The Cisco Spark Emulator is configured to run in "bot test mode".  When in this mode it inspects incoming requests for an X-Bot-Responses header.   For requests that have this header, the emulator intercepts the responses that woudl normally be sent back to the testing application and waits for the specified number of bot requests to come in.   Each time a correlated bot request is sent to the emulator (correlation generally is done via the roomId), the request information is captured and added to the body of the stored response.   When the number of bot requests specified in the X-Bot-Responses header are made, the consoldiated response is sent back to the testing framework
+  - The Cisco Spark Emulator is configured to run in "bot test mode".  When in this mode it inspects incoming requests for an X-Bot-Responses header.   For requests that have this header, the emulator intercepts the responses that would normally be sent back to the testing application and waits for the specified number of bot requests to come in.   Each time a correlated bot request is sent to the emulator (correlation generally is done via the roomId), the request information is captured and added to the body of the stored response.   When the number of bot requests specified in the X-Bot-Responses header are made, the consoldiated response is sent back to the testing framework
   - The Testing Framework (this sample uses Postman, but any framework that can send REST requests and inspect the results will do), then inspects the responses to each request, ensuring that the expected bot requests were made
 
 The following sections walk through how to configure the spark-emulator to run in "bot test mode", how to modify a bot in order to make it "testable", and finally how to write and run tests that emulate spark user actions to ensure that the bot responds as expected.
@@ -98,7 +98,10 @@ After ensuring that your bot is configured as described above, make sure that th
 
     ```npm run bot-dependencies```
 
-2) As described above, we also need to modify the bot framework to work with the emulator.  Since the framework is not part of this sample package **you must perform this step**. Modify spark.js in the node_modules/node-sparky/lib directory by changing this line:
+2) As described above, we also need to modify the bot framework to work with the emulator.  Since the framework is not part of this sample package **you must perform this step** after downloading the dependencies.  **This is the one step you must perform in order to run the tests with the sample**
+
+     Modify spark.js in the node_modules/node-sparky/lib directory by changing this line:
+
     ```
      // api url
     this.apiUrl = 'https://api.ciscospark.com/v1/';
@@ -122,7 +125,7 @@ Ok.  We've got the emulator and the bot running, now we can dig into what you ca
 
 The easiest way to understand the test cases is to load them into Postman.  If you don't have or don't like Postman you can likely follow along with the test cases in JSON format as well, but you will need to build your own framework for sending the requests and evaluating the responses.
 
-Load the provided test cases and postman environment into your Postman instance by choosing Import from the File Menu and import the two JSON files.  One file will create a collection called SparkBotStarter Tests.   We'll look at that in detail in a moment.   The other creates an environment called spark_emulator.   Let's look at the environment that we have defined:
+Load the provided test cases and postman environment into your Postman instance by choosing Import from the File Menu and import the two files [test-cases/SparkBotStarterTests.postman_collection.json](test-cases/SparkBotStarterTests.postman_collection.json), and [test-cases/spark_emulator.postman_environment.json](test-cases/spark_emulator.postman_environment.json).  One file will create a collection called SparkBotStarter Tests.   We'll look at that in detail in a moment.   The other creates an environment called spark_emulator.   Let's look at the environment that we have defined:
 
 - API_URL -- the url where the spark emulator is running, ie http://localhost:3210
 - SPARK_TOKEN -- a token specified in tokens.json for the spark emulator
@@ -133,7 +136,7 @@ Load the provided test cases and postman environment into your Postman instance 
 
 The values configured should work out-of-the-box for this sample.
 
-After ensuring that you have activated this environment (and that your bot and spark emulator are running), you are ready to run your first test.   It's easier to follow along with this section if you have postman up and running and are looking at the requests and associated test cases.  If you aren't familiar with Postman, requests are stored in a "Collection".  Each request has a title a spot to define the request type and endpoint and under that several tabs.  In our collection we often update the Headers, Body, and the Tests tab.  Tests are written in javascript and allow you to programmatically evaluate the responses to each request.   This blogpost provides a good overview of how Postman based testing works: http://blog.getpostman.com/2017/10/25/writing-tests-in-postman/
+After ensuring that you have activated this environment (and that your bot and spark emulator are running), you are ready to run your first test.   It's easier to follow along with this section if you have postman up and running and are looking at the requests and associated test cases.  If you aren't familiar with Postman, requests are stored in a "Collection".  Each request has a title, a spot to define the request type and endpoint, and under that several tabs.  In our collection we often update the Headers, Body, and the Tests tab.  Tests are written in javascript and allow you to programmatically evaluate the responses to each request.   This blogpost provides a good overview of how Postman based testing works: http://blog.getpostman.com/2017/10/25/writing-tests-in-postman/
 
 You'll find the following in your new SparkBotStarter Tests collection:
 
@@ -151,6 +154,8 @@ You'll find the following in your new SparkBotStarter Tests collection:
     ```
     Here we create a generic bodyIncludesBotResponsesTest which will validate that the response from the emulator includes the body we expect when a response includes a consolidated response body plus subsequent bot requests.
 
+    Our test case also inspects the return value and finds the roomId of the newly created space.   This value is saved in the environment variable "_roomId" which is used by the subsequent tests.
+
     Its important that this test be run before the others.
 
 2) **Add bot to group room**:   This is also a fairly "standard" test as it just adds the bot to our space.  The SparkStarterBot in this sample project does not respond in any way when being added to a space so there are no expected Bot responses here either.
@@ -164,6 +169,7 @@ You'll find the following in your new SparkBotStarter Tests collection:
     "text" : "<@personId:{{bot_id}}|Bot> /hello"
     }
     ```
+    Note that in Postman's syntax an environment variable enclosed in double brackets is replaced by that variable's value.
 
     But of course the interesting part of this test is that we've introduced a new header (see the Headers tab) called "X-Bot-Responses" and set the value to 1.   This essentially tells the spark emulator to intercept the response to our messages request and to hold it until it gets one request from the bot.   Since this is happening these tests may take a few seconds to run.   Assuming all is well and the bot is behaving properly the test framework will eventually get a response that looks something like this:
 
@@ -238,7 +244,7 @@ Once you have the hang of how Postman tests work, and what the X-Bot-Responses h
 Once you have your bot talking to the spark emulator, I find it useful to run the emulator with DEBUG=emulator:botTest (which happens automatically if you start the emulator using the npm run start-emulator command).  In this mode you can see all of the requests being sent to it and watch the responses the the bot sends after input from Postman.   Using this you can start to experiment with setting the X-Bot-Responses header and creating test cases that will validate the response specific to your bot.
 
 ## Running your regression tests
-Once you are confident that your tests are working properly, its time to get in the habit of running the tests regularly.   Posman has a tool called Runner (click the Runner button on the main widow) which allows you to select a collection and environment and run all the tests automatically.  Postman also supplies a CLI tool called newman which allows you to run tests from the command line.   This sample project includes the following npm command to run the tests in CLI mode:
+Once you are confident that your tests are working properly, its time to get in the habit of running the tests regularly.   Postman has a tool called Runner (click the Runner button on the main widow) which allows you to select a collection and environment and run all the tests automatically.  Postman also supplies a CLI tool called newman which allows you to run tests from the command line.   This sample project includes the following npm command to run the tests in CLI mode:
 
     ```npm test```
 
@@ -246,8 +252,10 @@ Just make sure that the emulator and configured bot are both running before runn
 
 ## Limitations
 There are still several known limitations to testing bots with this framework.   Among them are:
-    - Correlation of bot requests to test input is currently done only via roomId (or bot membership in room for membership events).   This means that the test framework cannot send a second request that impacts the same room as the first request before the first response is returned.
-    - There is currently no way correlate bot behaviors that dont take place in the same room as the test request.   This means that if (for example) a bot responds to a message being sent in one room by sending messages to another room, there is no way to capture this in the framwork today.
-    - There is currently no way to test external events that generate bot responses since the test framework depends on the initial request coming into the spark emulator
+- Correlation of bot requests to test input is currently done only via roomId (or bot membership in room for membership events).   This means that the test framework cannot send a second request that impacts the same room as the first request before the first response is returned.
+- There is currently no way correlate bot behaviors that dont take place in the same room as the test request.   This means that if (for example) a bot responds to a message being sent in one room by sending messages to another room, there is no way to capture this in the framwork today.
+- There is currently no way to test external events that generate bot responses since the test framework depends on the initial request coming into the spark emulator
 
-If you find other limitations please report them as issues! 
+We hope to extend the spark emulator and work with bot framework developers to create a more precise way to correlate test input with subsequent bot requests.   Watch this space!
+
+If you find other limitations please report them as issues. 
