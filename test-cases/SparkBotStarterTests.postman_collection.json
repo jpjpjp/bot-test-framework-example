@@ -272,7 +272,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /hello\"\r\n}"
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"markdown\" : \"<@personId:{{bot_id}}|Bot> /hello\"\r\n}"
 				},
 				"url": {
 					"raw": "{{API_URL}}/messages",
@@ -350,7 +350,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /whoami\"\r\n}"
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"markdown\" : \"<@personId:{{bot_id}}|Bot> /whoami\"\r\n}"
 				},
 				"url": {
 					"raw": "{{API_URL}}/messages",
@@ -421,7 +421,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /echo Repeat this back to me.\"\r\n}"
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"markdown\" : \"<@personId:{{bot_id}}|Bot> /echo Repeat this back to me.\"\r\n}"
 				},
 				"url": {
 					"raw": "{{API_URL}}/messages",
@@ -495,7 +495,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"text\" : \"<@personId:{{bot_id}}|Bot> /leave\"\r\n}"
+					"raw": "{\r\n  \"roomId\" : \"{{_room}}\",\r\n  \"markdown\" : \"<@personId:{{bot_id}}|Bot> /leave\"\r\n}"
 				},
 				"url": {
 					"raw": "{{API_URL}}/messages",
