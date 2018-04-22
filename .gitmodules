@@ -2,7 +2,7 @@
 	path = sparkbotstarter
 	url = https://github.com/jpjpjp/sparkbotstarter.git
 	branch = master
-[submodule "spark-emulator"]
-	path = spark-emulator
-	url = https://github.com/ciscospark/spark-emulator.git
+[submodule "webex-api-emulator"]
+	path = webex-api-emulator
+	url = https://github.com/webex/webex-api-emulator.git
 	branch = master
