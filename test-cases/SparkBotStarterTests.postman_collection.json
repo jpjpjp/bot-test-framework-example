@@ -1,7 +1,7 @@
 {
 	"info": {
+		"_postman_id": "85a006c0-a5e4-4262-8cd3-f7c936158d00",
 		"name": "SparkBotStarter Tests",
-		"_postman_id": "b37bf1b9-ab91-3f45-bfcc-1c2c5f818095",
 		"description": "This is a set of test input designed to test and validate the expected behavior of the SparkBotStarter which is included as part of the bot-test-framework-example (https://github.com/jpjpjp/bot-test-framework-example).   These tests can be run when the Cisco Spark Emulator and the SparkBotStart bot are running as described in the readme of that project.\n\nThe following environment variables must be set prior to running the tests\nAPI_URL -- the url where the spark emulator is running, ie http://localhost:3210\nSPARK_TOKEN -- a token specified in tokens.json for the spark emulator\nbot_email -- the email ID of the bot that will be tested.   Specified in tokens.json\nbot_id -- the id of the bot being tested.  Specified in tokens.json\ntester_name -- the name of the user running the tests.  Specified in tokens.json\ntester_email -- the email of the user running the tests.  Specified in tokens.json\n\nEach test emulates some type of user input to Cisco Spark.   It is sent to the emulator endpoint specified in the API_URL environment variable.\n\nWhen we expect the SparkBotStarter to respond with some request(s), we specify the X-Bot-Responses header to the number of requests we expect the bot to send.   The Spark Emulator will intercept the \"normal\" responses to our test cases and collect the bot responses, adding them to our response before sending the response back to Postman.\n\nEach Test case can then examine the responses for both the expected response to our initial test request and for the expected bot responses that would follow it.\n\nNote that the first request in the collection includes some globally defined tests that are evaluated in subsequent tests so the tests must be run in order.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -21,7 +21,7 @@
 							"  // We expect a 200 OK",
 							"  tests[task + \" returned \" + status] = responseCode.code === status;",
 							"  // The Content-Type must be JSON",
-							"  tests[\"Content-Type header is set\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json; charset=utf-8\";",
+							"  tests[\"Content-Type header is set\"] = postman.getResponseHeader(\"Content-Type\") === \"application/json;charset=UTF-8\";",
 							"});",
 							"",
 							"// When X-Bot-Responses header is set, check to see if we got an expected",
@@ -193,7 +193,10 @@
 						"value": "Bearer {{spark_token}}"
 					}
 				],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "{{API_URL}}/memberships?roomId={{_room}}",
 					"host": [
@@ -205,8 +208,7 @@
 					"query": [
 						{
 							"key": "roomId",
-							"value": "{{_room}}",
-							"equals": true
+							"value": "{{_room}}"
 						}
 					]
 				},
@@ -371,7 +373,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4ccf8c49-a971-44a8-8369-1c707437485b",
+						"id": "628bfa6b-b0d8-4193-9dbe-9acaea5a4f12",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
@@ -442,7 +444,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "18bfa9af-4e54-4810-b3c2-0202f12039c1",
+						"id": "9d3370da-2cd8-4956-9157-e6adcc2571a0",
 						"type": "text/javascript",
 						"exec": [
 							"// First, run the common tests",
@@ -462,7 +464,7 @@
 							"    tests[\"Bot responded with \" + expectedResponses + \" requests:\"] = true;",
 							"    var botResponse = jsonData.botResponses[0];",
 							"    // Check if we got the expected message from the bot",
-							"    eval(globals.botResponseMessageTest)(botResponse, roomId, \"OK.  I know when I'm not wanted...\");",
+							"    eval(globals.botResponseMessageText)(botResponse, roomId, \"OK.  I know when I'm not wanted...\");",
 							"        // Check if the bot left the space",
 							"    botResponse = jsonData.botResponses[1];",
 							"    tests[\"Bot deleted a membership\"] = botResponse.method === 'DELETE';",
@@ -548,7 +550,10 @@
 						"value": "Bearer {{spark_token}}"
 					}
 				],
-				"body": {},
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
 				"url": {
 					"raw": "{{API_URL}}/memberships?roomId={{_room}}",
 					"host": [
@@ -560,8 +565,7 @@
 					"query": [
 						{
 							"key": "roomId",
-							"value": "{{_room}}",
-							"equals": true
+							"value": "{{_room}}"
 						}
 					]
 				},
