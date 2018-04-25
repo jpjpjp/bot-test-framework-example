@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "85a006c0-a5e4-4262-8cd3-f7c936158d00",
+		"_postman_id": "53ae6d85-2040-4ca8-99e9-a0c209685b88",
 		"name": "webex-bot Tests",
 		"description": "This is a set of test input designed to test and validate the expected behavior of the webex-bot which is included as part of the bot-test-framework-example (https://github.com/jpjpjp/bot-test-framework-example).   These tests can be run when the Webex API Emulator and the webex-bot are running as described in the readme of that project.\n\nThe following environment variables must be set prior to running the tests\nAPI_URL -- the url where the webex api emulator is running, ie http://localhost:3210\nWEBEX_TOKEN -- a token specified in tokens.json for the webex api emulator\nbot_email -- the email ID of the bot that will be tested.   Specified in tokens.json\nbot_id -- the id of the bot being tested.  Specified in tokens.json\ntester_name -- the name of the user running the tests.  Specified in tokens.json\ntester_email -- the email of the user running the tests.  Specified in tokens.json\n\nEach test emulates some type of user input to Webex Teams API.   It is sent to the emulator endpoint specified in the API_URL environment variable.\n\nWhen we expect the webex-bot to respond with some request(s), we specify the X-Bot-Responses header to the number of requests we expect the bot to send.   The Emulator will intercept the \"normal\" responses to our test cases and collect the bot responses, adding them to our response before sending the response back to Postman.\n\nEach Test case can then examine the responses for both the expected response to our initial test request and for the expected bot responses that would follow it.\n\nNote that the first request in the collection includes some globally defined tests that are evaluated in subsequent tests so the tests must be run in order.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -12,7 +12,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "af8c3d0b-d8ba-4eb2-815d-97e0d5796adc",
+						"id": "75bfb49c-1bca-4eb8-a234-bf2b36aae844",
 						"type": "text/javascript",
 						"exec": [
 							"// Save common tests in a global variable",
@@ -38,8 +38,6 @@
 							"// Check if the bot sent us an expected message in text format",
 							"postman.setGlobalVariable(\"botResponseMessageText\", (botResponse, roomId, message) => {",
 							"    tests[\"Bot called the /messages API\"] = botResponse.route === '/messages';",
-							"    console.log(roomId);",
-							"    console.log(botResponse.body.roomId);",
 							"    tests[\"Bot message was sent to room ID: \"+roomId] = botResponse.body.roomId === roomId;",
 							"    tests[\"Bot sent expected text: \"+message] = botResponse.body.text === message;",
 							"});",
@@ -47,8 +45,6 @@
 							"// Check if the bot sent us an expected message in markdown format",
 							"postman.setGlobalVariable(\"botResponseMessageMarkdown\", (botResponse, roomId, message) => {",
 							"    tests[\"Bot called the /messages API\"] = botResponse.route === '/messages';",
-							"    console.log(roomId);",
-							"    console.log(botResponse.body.roomId);",
 							"    tests[\"Bot message was sent to room ID: \"+roomId] = botResponse.body.roomId === roomId;",
 							"    tests[\"Bot sent expected markdown: \"+message] = botResponse.body.markdown === message;",
 							"});",
