@@ -2,3 +2,7 @@
 	path = webex-api-emulator
 	url = https://github.com/webex/webex-api-emulator.git
 	branch = master
+[submodule "webex-bot-node"]
+	path = webex-bot-node
+	url = https://github.com/jpjpjp/webex-bot-node.git
+	branch = master

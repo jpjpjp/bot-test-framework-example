@@ -1,8 +1,8 @@
 {
 	"info": {
 		"_postman_id": "85a006c0-a5e4-4262-8cd3-f7c936158d00",
-		"name": "SparkBotStarter Tests",
-		"description": "This is a set of test input designed to test and validate the expected behavior of the SparkBotStarter which is included as part of the bot-test-framework-example (https://github.com/jpjpjp/bot-test-framework-example).   These tests can be run when the Cisco Spark Emulator and the SparkBotStart bot are running as described in the readme of that project.\n\nThe following environment variables must be set prior to running the tests\nAPI_URL -- the url where the spark emulator is running, ie http://localhost:3210\nSPARK_TOKEN -- a token specified in tokens.json for the spark emulator\nbot_email -- the email ID of the bot that will be tested.   Specified in tokens.json\nbot_id -- the id of the bot being tested.  Specified in tokens.json\ntester_name -- the name of the user running the tests.  Specified in tokens.json\ntester_email -- the email of the user running the tests.  Specified in tokens.json\n\nEach test emulates some type of user input to Cisco Spark.   It is sent to the emulator endpoint specified in the API_URL environment variable.\n\nWhen we expect the SparkBotStarter to respond with some request(s), we specify the X-Bot-Responses header to the number of requests we expect the bot to send.   The Spark Emulator will intercept the \"normal\" responses to our test cases and collect the bot responses, adding them to our response before sending the response back to Postman.\n\nEach Test case can then examine the responses for both the expected response to our initial test request and for the expected bot responses that would follow it.\n\nNote that the first request in the collection includes some globally defined tests that are evaluated in subsequent tests so the tests must be run in order.",
+		"name": "webex-bot Tests",
+		"description": "This is a set of test input designed to test and validate the expected behavior of the webex-bot which is included as part of the bot-test-framework-example (https://github.com/jpjpjp/bot-test-framework-example).   These tests can be run when the Webex API Emulator and the webex-bot are running as described in the readme of that project.\n\nThe following environment variables must be set prior to running the tests\nAPI_URL -- the url where the webex api emulator is running, ie http://localhost:3210\nWEBEX_TOKEN -- a token specified in tokens.json for the webex api emulator\nbot_email -- the email ID of the bot that will be tested.   Specified in tokens.json\nbot_id -- the id of the bot being tested.  Specified in tokens.json\ntester_name -- the name of the user running the tests.  Specified in tokens.json\ntester_email -- the email of the user running the tests.  Specified in tokens.json\n\nEach test emulates some type of user input to Webex Teams API.   It is sent to the emulator endpoint specified in the API_URL environment variable.\n\nWhen we expect the webex-bot to respond with some request(s), we specify the X-Bot-Responses header to the number of requests we expect the bot to send.   The Emulator will intercept the \"normal\" responses to our test cases and collect the bot responses, adding them to our response before sending the response back to Postman.\n\nEach Test case can then examine the responses for both the expected response to our initial test request and for the expected bot responses that would follow it.\n\nNote that the first request in the collection includes some globally defined tests that are evaluated in subsequent tests so the tests must be run in order.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -80,7 +80,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -130,7 +130,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -150,7 +150,7 @@
 						"memberships"
 					]
 				},
-				"description": "Adds the bot to the previously created room.   Note that the bot is added via the personId element in the body.  The cisco spark emulator does not fully support referring to users via email yet.\n\nThe bot's person id should be specified in the bot_id environment variable.\n\nNo bot response is expected to this test."
+				"description": "Adds the bot to the previously created room.   Note that the bot is added via the personId element in the body.  The Webex API emulator does not fully support referring to users via email yet.\n\nThe bot's person id should be specified in the bot_id environment variable.\n\nNo bot response is expected to this test."
 			},
 			"response": []
 		},
@@ -190,7 +190,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					}
 				],
 				"body": {
@@ -228,7 +228,7 @@
 							"// First, run the common tests",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
-							"// Check that we got the combined spark API and bot response payload",
+							"// Check that we got the combined webex API and bot response payload",
 							"eval(globals.bodyIncludesBotResponsesTest)()",
 							"",
 							"// Check if we got the expected message from the bot",
@@ -261,7 +261,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -301,7 +301,7 @@
 							"// First, run the common tests",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
-							"// Check that we got the combined spark API and bot response payload",
+							"// Check that we got the combined webex API and bot response payload",
 							"eval(globals.bodyIncludesBotResponsesTest)()",
 							"var jsonData = JSON.parse(responseBody);",
 							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
@@ -339,7 +339,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -379,7 +379,7 @@
 							"// First, run the common tests",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
-							"// Check that we got the combined spark API and bot response payload",
+							"// Check that we got the combined webex API and bot response payload",
 							"eval(globals.bodyIncludesBotResponsesTest)()",
 							"",
 							"// Check that we got the expected bot response",
@@ -410,7 +410,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -450,7 +450,7 @@
 							"// First, run the common tests",
 							"eval(globals.commonTests)(\"Send help message to the bot\", 200);",
 							"",
-							"// Check that we got the combined spark API and bot response payload",
+							"// Check that we got the combined webex API and bot response payload",
 							"eval(globals.bodyIncludesBotResponsesTest)()",
 							"var jsonData = JSON.parse(responseBody);",
 							"var testFrameworkResponse = jsonData.testFrameworkResponse;",
@@ -484,7 +484,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",
@@ -547,7 +547,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					}
 				],
 				"body": {
@@ -597,7 +597,7 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "Bearer {{spark_token}}"
+						"value": "Bearer {{webex_token}}"
 					},
 					{
 						"key": "Content-Type",

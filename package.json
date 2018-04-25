@@ -5,9 +5,9 @@
   "scripts": {
     "emulator-dependencies": "cd webex-api-emulator; npm install; cd ..",
     "start-emulator": "BOT_UNDER_TEST=bot@sparkbot.io DEBUG=emulator:botTest node webex-api-emulator/server.js",
-    "bot-dependencies": "cd sparkbotstarter; npm install; cd ..",
-    "start-bot": "node sparkbotstarter/index.js",
-    "test": "newman run test-cases/SparkBotStarterTests.postman_collection.json -e test-cases/spark_emulator.postman_environment.json"
+    "bot-dependencies": "cd webex-bot-node; npm install; cd ..",
+    "start-bot": "node webex-bot-node/index.js",
+    "test": "newman run test-cases/WebexBotTests.postman_collection.json -e test-cases/webex_emulator.postman_environment.json"
   },
   "dependencies": {
   },
