@@ -83,13 +83,9 @@ Open a terminal window to run the emulator.
 
 ## Preparing the bot for testing.
 
-This project includes a submodule webex-bot-node which provides a node based Webex Teams bot based on the [sparkbotstarter project] (https://github.com/valgaze/sparkbotstarter), which demonstrates how to create a simple bot using the node-flint bot framework.   Testing can work with any Webex Teams bot written in any framework where the developer has the ability to configure the address of the Webex API instance that the bot interacts with.    We chose the webex-bot-node project since the spark-emulator and the postman test cases we use in this example all use node.js or javascript.   
+This project includes a submodule webex-bot-node which provides a simple bot built using the node-flint bot framework.   Testing can work with any Webex Teams bot written in any framework where the developer has the ability to configure the address of the Webex API instance that the bot interacts with.    We chose the webex-bot-node project since the spark-emulator and the postman test cases we use in this example all use node.js or javascript.  Links to this a bot with same functionality, but built with Botkit and Python are listed in the next section. 
 
-If you prefer to write your bots using the [Botkit framework](https://botkit.ai/docs/readme-ciscospark.html), you can skip this step and use the [Webex Botkit Starter](https://github.com/jpjpjp/webex-bot-botkit) project instead.
-
-If you prefer to write your bots in python, you can skip this step and use the [Webex Python Starter](https://github.com/jpjpjp/webex-bot-python) project instead.
-
-Preparing a bot for testing requires the following steps.  These steps are already done for you for you in all of the sample starter bot projects, but you will need to do these to your own bot in order to run tests against it.   The details of how this is done will differ depending on which bot framework you are using, and how you configure details such as the webhook URL and auth token for your bot.
+Preparing a bot for testing requires the following steps.  These steps are already done for you for you in the sample bot that comes with this project, but you will need to do these to your own bot in order to run tests against it.   The details of how this is done will differ depending on which bot framework you are using, and how you configure details such as the webhook URL and auth token for your bot.
 
 1) Configure the bot to use a token specified in the tokens.json file of webex-api-emulator project.   In our sample we see the following line in [webex-bot-node/config.json](webex-bot-node/config.json):
 
@@ -106,7 +102,13 @@ Preparing a bot for testing requires the following steps.  These steps are alrea
     ```"apiUrl": "http://localhost:3210/"```
 
 ## Running the bot in test mode.
-After ensuring that your bot is configured as described above, make sure that the emulator is up and running.  If you are using the Botkit or Python starter bots the please refer to the instructions in those proejcts to start the bot.  Otherwise, open a terminal window to start the included node-flint based bot as follows:
+After ensuring that your bot is configured as described above, make sure that the emulator is up and running.  
+
+If you prefer to write your bots using the [Botkit framework](https://botkit.ai/docs/readme-ciscospark.html), you can skip this step and use the pre-configured [Webex Botkit Starter](https://github.com/jpjpjp/webex-bot-botkit) project instead.
+
+If you prefer to write your bots in python, you can skip this step and use the pre-configured [Webex Python Starter](https://github.com/jpjpjp/webex-bot-python) project instead.
+
+Otherwise, open a terminal window to start the included node-flint based bot as follows:
 
 1) Make sure all the bot dependencies are downloaded.  This is necessary only the first time after installing the project locally:
 
