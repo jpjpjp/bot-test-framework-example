@@ -83,9 +83,13 @@ Open a terminal window to run the emulator.
 
 ## Preparing the bot for testing.
 
-This project includes a submodule webex-bot-node which provides a node based Webex Teams bot based on the [sparkbotstarter project] (https://github.com/valgaze/sparkbotstarter), which demonstrates how to create a simple bot using the node-flint bot framework.   Testing can work with any Webex Teams bot written in any framework where the developer has the ability to configure the address of the Webex API instance that the bot interacts with.    We chose the webex-bot-node project since the spark-emulator and the postman test cases we use in this example all use node.js or javascript.    
+This project includes a submodule webex-bot-node which provides a node based Webex Teams bot based on the [sparkbotstarter project] (https://github.com/valgaze/sparkbotstarter), which demonstrates how to create a simple bot using the node-flint bot framework.   Testing can work with any Webex Teams bot written in any framework where the developer has the ability to configure the address of the Webex API instance that the bot interacts with.    We chose the webex-bot-node project since the spark-emulator and the postman test cases we use in this example all use node.js or javascript.   
 
-Preparing a bot for testing requires the following steps.  These steps are already done for you for you in this sample, but you will need to do these to your own bot in order to run tests against it.   The details of how this is done will differ depending on which bot framework you are using, and how you configure details such as the webhook URL and auth token for your bot.
+If you prefer to write your bots using the [Botkit framework](https://botkit.ai/docs/readme-ciscospark.html), you can skip this step and use the [Webex Botkit Starter](https://github.com/jpjpjp/webex-bot-botkit) project instead.
+
+If you prefer to write your bots in python, you can skip this step and use the [Webex Python Starter](https://github.com/jpjpjp/webex-bot-python) project instead.
+
+Preparing a bot for testing requires the following steps.  These steps are already done for you for you in all of the sample starter bot projects, but you will need to do these to your own bot in order to run tests against it.   The details of how this is done will differ depending on which bot framework you are using, and how you configure details such as the webhook URL and auth token for your bot.
 
 1) Configure the bot to use a token specified in the tokens.json file of webex-api-emulator project.   In our sample we see the following line in [webex-bot-node/config.json](webex-bot-node/config.json):
 
@@ -102,17 +106,19 @@ Preparing a bot for testing requires the following steps.  These steps are alrea
     ```"apiUrl": "http://localhost:3210/"```
 
 ## Running the bot in test mode.
-After ensuring that your bot is configured as described above, make sure that the emulator is up and running.  Open a terminal window to start the bot as follows:
+After ensuring that your bot is configured as described above, make sure that the emulator is up and running.  If you are using the Botkit or Python starter bots the please refer to the instructions in those proejcts to start the bot.  Otherwise, open a terminal window to start the included node-flint based bot as follows:
 
 1) Make sure all the bot dependencies are downloaded.  This is necessary only the first time after installing the project locally:
 
     ```npm run bot-dependencies```
 
-    (Note that windows users may need to manually change to the webex-bot-node directory and run "npn install" from there.)
+    (Note that windows users may need to manually change to the webex-bot-node directory and run "npm install" from there.)
 
 2) Start the emulator with the environment variables set as described in the previous section:
 
     ```npm run start-emulator```
+
+    (Note that windows users may need to manually change to the webex-bot-node directory and run "npm start" from there.)
 
 When you have both the emulator and bot running you should have two terminal windows that look something like this:
 
