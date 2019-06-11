@@ -9,14 +9,14 @@
     "start-bot": "node webex-bot-node/index.js",
     "test": "newman run test-cases/WebexBotTests.postman_collection.json -e test-cases/webex_emulator.postman_environment.json"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/jpjpjp/bot-test-framework-example.git"
   },
   "keywords": [
     "ciscospark",
+    "webex",
     "emulator"
   ],
   "author": "JP Shipherd <jshipher@cisco.com>",

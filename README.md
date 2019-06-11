@@ -12,7 +12,7 @@ The following sections walk through how to configure the emulator to run in "bot
 
 Because this project uses git submodules you may need to manually update them to get the webex-api-emulator and webex-bot-node projects populated, depending on the version of git you are running.  If these directories are empty, from the root directory of this project run the command:
 
-    git submodule update --init --recursive
+    `git submodule update --init --recursive`
 
 Both the emulator and the sample bot are node.js applications so you will need to have node and npm installed to run the samples.
 
@@ -116,15 +116,27 @@ Otherwise, open a terminal window to start the included node-flint based bot as 
 
     (Note that windows users may need to manually change to the webex-bot-node directory and run "npm install" from there.)
 
-2) Start the emulator with the environment variables set as described in the previous section:
+2) Start the bot that we will be testing, with the environment variables set as described in the previous section:
 
-    ```npm run start-emulator```
+    ```npm run start-bot```
 
     (Note that windows users may need to manually change to the webex-bot-node directory and run "npm start" from there.)
 
 When you have both the emulator and bot running you should have two terminal windows that look something like this:
 
 ![Terminal Windows](docs/RunningEmulatorAndBot.png)
+
+## Validate the setup
+
+At this point, we can quickly validate the setup by running the prebuilt regression tests.  
+
+1) In a new terminal window, change to the project's root directory and type:
+
+    ```npm run test```
+
+If all is well you will see activity in both the terminal windows where the emulator and the bot is running.   After the tests complete, the terminal window where you ran the tests should look something like this:
+
+![Terminal Window](docs/Regression-Output.png)
 
 ## Test Cases
 
@@ -138,16 +150,16 @@ Load the provided test cases and postman environment into your Postman instance 
 
 Clicking on the "eye icon" shows the following variables:
 
-- webex_token -- a token specified in tokens.json for the spark emulator
-- API_URL -- the url where the spark emulator is running, ie http://localhost:3210
-- bot_id -- the id of the bot being tested.  Specified in [spark-emulator/tokens.json](spark-emulator/tokens.json)
-- bot_email -- the email ID of the bot that will be tested.   Specified in [spark-emulator/tokens.json](spark-emulator/tokens.json)
-- tester_name -- the name of the user running the tests.  This is for a user other than the bot who is specified in [spark-emulator/tokens.json](spark-emulator/tokens.json)
-- tester_email -- the email of the user running the tests.  Specified in [spark-emulator/tokens.json](spark-emulator/tokens.json)
+- webex_token -- a token specified in tokens.json for the webex api emulator
+- API_URL -- the url where the webex api emulator is running, ie http://localhost:3210
+- bot_id -- the id of the bot being tested.  Specified in [webex-api-emulator/tokens.json](webex-api-emulator/tokens.json)
+- bot_email -- the email ID of the bot that will be tested.   Specified in [webex-api-emulator/tokens.json](webex-api-emulator/tokens.json)
+- tester_name -- the name of the user running the tests.  This is for a user other than the bot who is specified in [webex-api-emulator/tokens.json](webex-api-emulator/tokens.json)
+- tester_email -- the email of the user running the tests.  Specified in [ webex-api-emulator/tokens.json](webex-api-emulator/tokens.json)
 
 The values configured should work out-of-the-box for this sample.   If you needed to edit them clicking on the orange "Edit" link allows you to od this
 
-After ensuring that you have activated this environment (and that your bot and webex api emulator are running), you are ready to run your first test.   If you aren't familiar with Postman, requests are stored in a "Collection".  Each request has a title, a spot to define the request type and endpoint, and under that several tabs.  
+After ensuring that you have activated this environment by selecting "webex_emulator" in the environments dropdown, (and that your bot and webex api emulator are running), you are ready to run your first test.   If you aren't familiar with Postman, requests are stored in a "Collection".  Each request has a title, a spot to define the request type and endpoint, and under that several tabs.  
 
 ![Collect](docs/WebexBotTestsPostmanCollection.png)
 
@@ -163,7 +175,7 @@ You'll find the following in your new SparkBotStarter Tests collection:
 
     This is one of several tests methods defined here, others inspect markdown messages, or simply do some grunt work to confirm that the emulator returned a 200 OK response.
 
-    Its important that this test be run before the others since the tests will not work if these functions are not defined.
+    Its important that this test be run before the others since the tests will not work if these global functions are not defined.
 
 2) **Add bot to group room**:   This is also a fairly "standard" test as it just adds the bot to our space.  The webex-bot in this sample project does not respond in any way when being added to a space so there are no expected Bot responses here either.
 
